@@ -9,58 +9,92 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @State private var serverName: String = ""
+    @State private var serverURL: String = ""
+    @AppStorage("serversData") private var serversData: Data = Data()
+    @State private var servers: [Server] = []
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        NavigationView {
+            VStack {
+                // Display the startup image
+                Image("StartupImage") // Make sure this matches the name of your image set
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 150, height: 150) // Adjust the size as needed
+                    .padding()
+                
+                // Server input fields
+                TextField("Server Name", text: $serverName)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
+
+                TextField("Server URL", text: $serverURL)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .autocapitalization(.none)
+                    .keyboardType(.URL)
+                    .padding()
+
+                // Save button
+                Button(action: saveServer) {
+                    Text("Save Server")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .padding()
+
+                // List of saved servers
+                List {
+                    ForEach(servers) { server in
+                        NavigationLink(destination: ControlView(server: server)) {
+                            Text(server.name)
+                        }
                     }
+                    .onDelete(perform: deleteServer)
                 }
-                .onDelete(perform: deleteItems)
+                .padding()
             }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
+            .navigationTitle("Bouncy Control")
+            .onAppear(perform: loadServers)
+        }
+    }
+    
+    // Save server details
+    func saveServer() {
+        guard !serverName.isEmpty, !serverURL.isEmpty else { return }
+        let server = Server(name: serverName, url: serverURL)
+        servers.append(server)
+        saveServers()
+        serverName = ""
+        serverURL = ""
+    }
+
+    // Save servers to AppStorage
+    func saveServers() {
+        if let encoded = try? JSONEncoder().encode(servers) {
+            serversData = encoded
         }
     }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+    // Load servers from AppStorage
+    func loadServers() {
+        if let decoded = try? JSONDecoder().decode([Server].self, from: serversData) {
+            servers = decoded
         }
     }
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
+    // Delete a server
+    func deleteServer(at offsets: IndexSet) {
+        servers.remove(atOffsets: offsets)
+        saveServers()
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
 }
