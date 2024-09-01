@@ -36,7 +36,10 @@ struct ContentView: View {
                     .padding()
 
                 // Save button
-                Button(action: saveServer) {
+                Button(action: {
+                    saveServer()
+                    hideKeyboard()
+                }) {
                     Text("Save Server")
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -91,6 +94,11 @@ struct ContentView: View {
         servers.remove(atOffsets: offsets)
         saveServers()
     }
+    
+    // Function to hide the keyboard
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        }
 }
 
 struct ContentView_Previews: PreviewProvider {
