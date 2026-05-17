@@ -1,0 +1,76 @@
+name: Bouncy Control
+
+options:
+  deploymentTarget:
+    iOS: "18.0"
+  minimumXcodeGenVersion: 2.38.0
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: YBX2V97SYB
+    SWIFT_VERSION: 5.0
+    IPHONEOS_DEPLOYMENT_TARGET: "18.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    SUPPORTS_MACCATALYST: NO
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  Bouncy Control:
+    type: application
+    platform: iOS
+    sources:
+      - path: Bouncy Control
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.diller.Bouncy-Control
+        PRODUCT_NAME: "$(TARGET_NAME)"
+        INFOPLIST_FILE: Bouncy-Control-Info.plist
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Bouncy Control
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.simulation-games
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleDefault
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        CODE_SIGN_ENTITLEMENTS: Bouncy Control/Bouncy_Control.entitlements
+        CURRENT_PROJECT_VERSION: "1.3"
+        MARKETING_VERSION: "1.3"
+        DEVELOPMENT_ASSET_PATHS: "\"Bouncy Control/Preview Content\""
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        LD_RUNPATH_SEARCH_PATHS:
+          - "$(inherited)"
+          - "@executable_path/Frameworks"
+
+  Bouncy Control Tests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Bouncy Control Tests
+        excludes:
+          - Info.plist
+          - README.md
+          - SETUP_INSTRUCTIONS.md
+    dependencies:
+      - target: Bouncy Control
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.diller.Bouncy-ControlTests
+        PRODUCT_NAME: "$(TARGET_NAME)"
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Bouncy Control.app/Bouncy Control"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        LD_RUNPATH_SEARCH_PATHS:
+          - "$(inherited)"
+          - "@executable_path/Frameworks"
+          - "@loader_path/Frameworks"
+
+schemes:
+  Bouncy Control:
+    build:
+      targets:
+        Bouncy Control: all
+        Bouncy Control Tests: [test]
+    test:
+      targets:
+        - Bouncy Control Tests

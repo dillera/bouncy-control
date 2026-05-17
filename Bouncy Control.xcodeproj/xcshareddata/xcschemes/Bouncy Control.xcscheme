@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "2600"
+   LastUpgradeVersion = "1430"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
-      buildArchitectures = "Automatic">
+      runPostActionsOnFailure = "NO">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -15,9 +15,23 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C999D3AF2C850AB400740D82"
+               BlueprintIdentifier = "F176E3F1A79B12FA548D2DCF"
                BuildableName = "Bouncy Control.app"
                BlueprintName = "Bouncy Control"
+               ReferencedContainer = "container:Bouncy Control.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "324E955E828C7C55325087F9"
+               BuildableName = "Bouncy Control Tests.xctest"
+               BlueprintName = "Bouncy Control Tests"
                ReferencedContainer = "container:Bouncy Control.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,7 +42,31 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
+      onlyGenerateCoverageForSpecifiedTargets = "NO">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "F176E3F1A79B12FA548D2DCF"
+            BuildableName = "Bouncy Control.app"
+            BlueprintName = "Bouncy Control"
+            ReferencedContainer = "container:Bouncy Control.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "324E955E828C7C55325087F9"
+               BuildableName = "Bouncy Control Tests.xctest"
+               BlueprintName = "Bouncy Control Tests"
+               ReferencedContainer = "container:Bouncy Control.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -44,7 +82,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C999D3AF2C850AB400740D82"
+            BlueprintIdentifier = "F176E3F1A79B12FA548D2DCF"
             BuildableName = "Bouncy Control.app"
             BlueprintName = "Bouncy Control"
             ReferencedContainer = "container:Bouncy Control.xcodeproj">
@@ -61,7 +99,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C999D3AF2C850AB400740D82"
+            BlueprintIdentifier = "F176E3F1A79B12FA548D2DCF"
             BuildableName = "Bouncy Control.app"
             BlueprintName = "Bouncy Control"
             ReferencedContainer = "container:Bouncy Control.xcodeproj">

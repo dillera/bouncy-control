@@ -14,7 +14,7 @@ struct EditServerView: View {
     var onSave: (Server) -> Void
     
     // Environment variable to manage the presentation mode
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
 
     init(server: Server, onSave: @escaping (Server) -> Void) {
         self.server = server
@@ -31,13 +31,13 @@ struct EditServerView: View {
 
             TextField("Server URL", text: $serverURL)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                .autocapitalization(UITextAutocapitalizationType.none)
-                .keyboardType(UIKeyboardType.URL)
+                .textInputAutocapitalization(.never)
+                .keyboardType(.URL)
                 .padding()
 
             Button(action: {
                 saveChanges()
-                presentationMode.wrappedValue.dismiss() // Dismiss the view after saving
+                dismiss()
             }) {
                 Text("Save Changes")
                     .frame(maxWidth: .infinity)
@@ -51,9 +51,13 @@ struct EditServerView: View {
             Spacer()
         }
         .navigationTitle("Edit Server")
-        .navigationBarItems(trailing: Button("Cancel") {
-            presentationMode.wrappedValue.dismiss() // Dismiss the view when cancel is tapped
-        })
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Cancel") {
+                    dismiss()
+                }
+            }
+        }
     }
     
     private func saveChanges() {

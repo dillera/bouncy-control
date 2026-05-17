@@ -11,26 +11,29 @@ struct SplashScreenView: View {
     @State private var isActive = false
     
     var body: some View {
-        if isActive {
-            ContentView() // Transition to the main content view after 5 seconds
-        } else {
-            VStack {
-                Image("StartupImage")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 150, height: 150) // Adjust the size as needed
-                    .padding()
-                
-                Text("Bouncy Control")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .padding()
-            }
-            .onAppear {
-                // Start a timer to switch to the main view after 5 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                    withAnimation {
-                        self.isActive = true
+        Group {
+            if isActive {
+                ContentView()
+            } else {
+                VStack(spacing: 20) {
+                    Image("StartupImage")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 150, height: 150)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .shadow(radius: 10)
+                    
+                    Text("Bouncy Control")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.primary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.ultraThinMaterial)
+                .task {
+                    try? await Task.sleep(for: .seconds(3))
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        isActive = true
                     }
                 }
             }

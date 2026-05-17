@@ -1,231 +1,242 @@
 import SwiftUI
 
 struct ControlView: View {
-    var server: Server
-    
-    // State variables for the new broadcast command
-    @State private var message: String = ""
-    @State private var displayTime: String = "30" // Default display time is 30 seconds
-    @State private var showAlert = false
-    @State private var alertMessage = ""
+    let server: Server
+    @StateObject private var viewModel = ControlViewModel()
 
-    struct RoundedButtonStyle: ButtonStyle {
-        var backgroundColor: Color = Color.blue
-        var foregroundColor: Color = Color.white
+    private let buttonColumns = [
+        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 10)
+    ]
+
+    struct CommandButtonStyle: ButtonStyle {
+        var colors: [Color]
 
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
-                .padding()
-                .background(backgroundColor)
-                .foregroundColor(foregroundColor)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-                .shadow(color: .gray, radius: 5, x: 0, y: 5)
+                .frame(maxWidth: .infinity, minHeight: 58)
+                .padding(.horizontal, 10)
+                .background(
+                    LinearGradient(
+                        colors: colors,
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                )
+                .shadow(
+                    color: colors.last?.opacity(0.28) ?? .black.opacity(0.15),
+                    radius: configuration.isPressed ? 4 : 10,
+                    y: configuration.isPressed ? 2 : 6
+                )
+                .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
         }
     }
-    
+
     var body: some View {
-        VStack(spacing: 20) {
-            // Command buttons for Add Body Size and Reset World
-            VStack(spacing: 10) {
-                HStack(spacing: 10) {
-                    Button(action: { sendCommand("/add/1") }) {
-                        Text("Add Body Size 1")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(RoundedButtonStyle())
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.05, green: 0.08, blue: 0.16),
+                    Color(red: 0.11, green: 0.17, blue: 0.29),
+                    Color(red: 0.93, green: 0.95, blue: 0.99)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
-                    Button(action: { sendCommand("/add/2") }) {
-                        Text("Add Body Size 2")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(RoundedButtonStyle())
-                }
+            GeometryReader { geometry in
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 16) {
+                        header
 
-                HStack(spacing: 10) {
-                    Button(action: { sendCommand("/add/3") }) {
-                        Text("Add Body Size 3")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(RoundedButtonStyle())
+                        VStack(spacing: 12) {
+                            LazyVGrid(columns: buttonColumns, spacing: 10) {
+                                commandButton(
+                                    title: "Add S1",
+                                    subtitle: "Small"
+                                ) {
+                                    await viewModel.sendCommand("/add/1", to: server)
+                                }
 
-                    Button(action: { sendCommand("/add/4") }) {
-                        Text("Add Body Size 4")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(RoundedButtonStyle())
-                }
+                                commandButton(
+                                    title: "Add S2",
+                                    subtitle: "Medium"
+                                ) {
+                                    await viewModel.sendCommand("/add/2", to: server)
+                                }
 
-                HStack(spacing: 10) {
-                    Button(action: { sendCommand("/add/5") }) {
-                        Text("Add Body Size 5")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(RoundedButtonStyle())
+                                commandButton(
+                                    title: "Add S3",
+                                    subtitle: "Wide"
+                                ) {
+                                    await viewModel.sendCommand("/add/3", to: server)
+                                }
 
-                    Button(action: { sendCommand("/reset") }) {
-                        Text("Reset World")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
+                                commandButton(
+                                    title: "Add S4",
+                                    subtitle: "Heavy"
+                                ) {
+                                    await viewModel.sendCommand("/add/4", to: server)
+                                }
+
+                                commandButton(
+                                    title: "Add S5",
+                                    subtitle: "Large"
+                                ) {
+                                    await viewModel.sendCommand("/add/5", to: server)
+                                }
+
+                                commandButton(
+                                    title: "Reset",
+                                    subtitle: "Clear all",
+                                    colors: [Color(red: 1.0, green: 0.37, blue: 0.38), Color(red: 0.84, green: 0.13, blue: 0.18)]
+                                ) {
+                                    await viewModel.sendCommand("/reset", to: server)
+                                }
+
+                                commandButton(
+                                    title: "Pause",
+                                    subtitle: "Freeze toggle",
+                                    colors: [Color(red: 1.0, green: 0.71, blue: 0.24), Color(red: 1.0, green: 0.49, blue: 0.12)]
+                                ) {
+                                    await viewModel.sendCommand("/freeze", to: server)
+                                }
+
+                                NavigationLink(destination: StatusView(server: server)) {
+                                    buttonLabel(title: "Status", subtitle: "Live world")
+                                }
+                                .buttonStyle(
+                                    CommandButtonStyle(
+                                        colors: [Color(red: 0.27, green: 0.67, blue: 1.0), Color(red: 0.13, green: 0.34, blue: 0.94)]
+                                    )
+                                )
+                            }
+
+                            messageComposer
+                        }
+                        .padding(16)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                                .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                        )
                     }
-                    .buttonStyle(RoundedButtonStyle(backgroundColor: Color.red))
-                }
-            }
-            
-            // Section for Increase Speed and Decrease Speed buttons with arrow emojis
-            HStack(spacing: 20) {
-                Button(action: { sendCommand("/speed/increase") }) {
-                    HStack {
-                        Text("Increase Speed")
-                            .font(.headline)
-                        Text("⬆️") // Up arrow emoji
-                    }
+                    .frame(maxWidth: 430)
+                    .padding(.horizontal, 16)
+                    .padding(.top, max(geometry.safeAreaInsets.top, 12))
+                    .padding(.bottom, 18)
                     .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(RoundedButtonStyle())
-
-                Button(action: { sendCommand("/speed/decrease") }) {
-                    HStack {
-                        Text("Decrease Speed")
-                            .font(.headline)
-                        Text("⬇️") // Down arrow emoji
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(RoundedButtonStyle())
             }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        .alert("Error", isPresented: $viewModel.showAlert) {
+            Button("OK") { }
+        } message: {
+            Text(viewModel.errorMessage ?? "Unknown error")
+        }
+        .disabled(viewModel.isLoading)
+        .overlay {
+            if viewModel.isLoading {
+                ProgressView()
+                    .scaleEffect(1.4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black.opacity(0.22))
+            }
+        }
+    }
 
-            // New section for the broadcast command
-            VStack(alignment: .leading) {
-                Text("Broadcast Message")
-                    .font(.headline)
-                    .padding(.bottom, 5)
-                
-                TextField("Enter message", text: $message)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.bottom, 10)
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Bouncy Control")
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
 
-                TextField("Display Time (in seconds)", text: $displayTime)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .keyboardType(.numberPad) // Only allows numeric input
-                    .padding(.bottom, 10)
+            Text(server.name)
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.78))
+
+            Text("Direct control for http://bouncy.diller.org/")
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.58))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var messageComposer: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Broadcast")
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .foregroundStyle(Color.primary.opacity(0.88))
+
+            TextField("Message for the world", text: $viewModel.message)
+                .textFieldStyle(.plain)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+
+            HStack(spacing: 10) {
+                TextField("Secs", text: $viewModel.displayTime)
+                    .textFieldStyle(.plain)
+                    .keyboardType(.numberPad)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
 
                 Button(action: {
-                    sendBroadcastCommand()
+                    Task { await viewModel.sendBroadcast(to: server) }
                 }) {
-                    Text("Send Broadcast")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                    HStack(spacing: 8) {
+                        Image(systemName: "paperplane.fill")
+                        Text("Send")
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 48)
                 }
+                .buttonStyle(
+                    CommandButtonStyle(
+                        colors: [Color(red: 0.12, green: 0.76, blue: 0.52), Color(red: 0.06, green: 0.58, blue: 0.43)]
+                    )
+                )
             }
-            .padding()
-
-            Spacer()
-        }
-        .padding()
-        .navigationTitle("Control Panel")
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
     }
-    
-    // Function to send regular commands to the server
-    func sendCommand(_ endpoint: String) {
-        print("Server URL: \(server.url)")
-        print("Endpoint: \(endpoint)")
-        
-        // Ensure the base URL is properly formatted and construct the final URL
-        guard server.url.hasPrefix("http://") || server.url.hasPrefix("https://"),
-              let baseURL = URL(string: server.url) else {
-            alertMessage = "Invalid server URL: \(server.url)"
-            showAlert = true
-            return
-        }
-        
-        guard let finalURL = URL(string: endpoint, relativeTo: baseURL) else {
-            alertMessage = "Failed to construct a valid URL."
-            showAlert = true
-            return
-        }
-        
-        print("Final URL: \(finalURL.absoluteString)")
-        
-        let task = URLSession.shared.dataTask(with: finalURL) { data, response, error in
-            if let error = error {
-                DispatchQueue.main.async {
-                    self.alertMessage = "Error reaching server: \(error.localizedDescription)"
-                    self.showAlert = true
-                }
-                print("Error sending command: \(error.localizedDescription)")
-                return
-            }
 
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-                print("Command \(endpoint) sent successfully to \(server.url)")
-            } else {
-                DispatchQueue.main.async {
-                    self.alertMessage = "Failed to send command \(endpoint) to \(server.url)"
-                    self.showAlert = true
-                }
-            }
+    private func commandButton(
+        title: String,
+        subtitle: String,
+        colors: [Color] = [Color(red: 0.31, green: 0.66, blue: 1.0), Color(red: 0.16, green: 0.35, blue: 0.96)],
+        action: @escaping @MainActor () async -> Void
+    ) -> some View {
+        Button(action: {
+            Task { await action() }
+        }) {
+            buttonLabel(title: title, subtitle: subtitle)
         }
-        
-        task.resume()
+        .buttonStyle(CommandButtonStyle(colors: colors))
     }
 
-    // Function to send the broadcast command to the server
-    func sendBroadcastCommand() {
-        // Ensure message and display time are valid
-        guard !message.isEmpty else {
-            alertMessage = "Message cannot be empty."
-            showAlert = true
-            return
-        }
-        
-        guard let time = Int(displayTime), time > 0 else {
-            alertMessage = "Display time must be a valid number greater than 0."
-            showAlert = true
-            return
-        }
-        
-        // Construct the URL
-        let formattedMessage = message.replacingOccurrences(of: " ", with: "_") // Replace spaces with underscores
-        let endpoint = "/cmd/broadcast/ALL/\(time)/\(formattedMessage)"
-        
-        guard let baseURL = URL(string: server.url), let finalURL = URL(string: endpoint, relativeTo: baseURL) else {
-            alertMessage = "Invalid server URL."
-            showAlert = true
-            return
-        }
+    private func buttonLabel(title: String, subtitle: String) -> some View {
+        VStack(spacing: 2) {
+            Text(title)
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
 
-        // Send the request
-        let task = URLSession.shared.dataTask(with: finalURL) { data, response, error in
-            if let error = error {
-                DispatchQueue.main.async {
-                    self.alertMessage = "Error sending broadcast: \(error.localizedDescription)"
-                    self.showAlert = true
-                }
-                return
-            }
-
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-                print("Broadcast sent successfully to \(server.url)")
-            } else {
-                DispatchQueue.main.async {
-                    self.alertMessage = "Failed to send broadcast to server. Status code: \((response as? HTTPURLResponse)?.statusCode ?? 0)"
-                    self.showAlert = true
-                }
-            }
+            Text(subtitle)
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.86))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
         }
-        
-        task.resume()
+        .frame(maxWidth: .infinity)
+        .multilineTextAlignment(.center)
     }
 }
